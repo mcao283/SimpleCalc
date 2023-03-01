@@ -15,7 +15,9 @@ public class SimpleCalc {
 
 	// constructor	
 	public SimpleCalc() {
-		
+		utils = new ExprUtils();
+		valueStack = new ArrayStack<Double>();
+		operatorStack = new ArrayStack<String>();
 	}
 	
 	public static void main(String[] args) {
@@ -43,10 +45,13 @@ public class SimpleCalc {
 				printHelp();
 			else if( !expression.equals("q"))
 			{
-				System.out.println(evaluateExpression(utils.tokenizeExpression(expression)));
+				System.out.println( evaluateExpression((utils.tokenizeExpression(expression))));
 			}
 				
 		}while(!expression.equals("q"));
+		
+		for(int i = 0; i < tokens.size() ; i ++)
+			System.out.print(tokens.get(i));
 	}
 	
 	/**	Print help */
@@ -66,8 +71,112 @@ public class SimpleCalc {
 	 */
 	public double evaluateExpression(List<String> tokens) {
 		double value = 0;
+		int counter = 0;
+		double firstVal = 0.0, secondVal = 0.0 , val = 0.0, tempVal = 0.0;
+		char token = ' ';
+		char operator = ' ';
+		while( counter < tokens.size())
+		{
+			token = tokens.get(counter).charAt(0);
+			if(Character.isDigit(token))
+			{
+				val = Double.parseDouble(tokens.get(counter));
+				valueStack.push(val);
+			}
+			if(token == '(')
+				operatorStack.push(tokens.get(counter));
+			if(token == ')')
+			{
+				while(!(operatorStack.isEmpty()) && operatorStack.peek().charAt(0) != '(')
+				{
+					secondVal = valueStack.pop();
+					firstVal = valueStack.pop();
+					operator = operatorStack.pop().charAt(0);
+					
+					switch(operator)
+					{
+						case '+': tempVal = firstVal + secondVal;
+							break;
+						case '-': tempVal = firstVal - secondVal;
+							break;
+						case '*': tempVal = firstVal * secondVal;
+							break;
+						case '/': tempVal = firstVal / secondVal;
+							break;
+						case '^': tempVal = Math.pow(firstVal,secondVal);
+							break;
+						case '%': tempVal = firstVal % secondVal;
+							break;
+					}
+					valueStack.push(tempVal);
+				}
+				
+				if(operatorStack.peek().charAt(0) == '(')
+					operatorStack.pop();
+			}
+			
+			if(!Character.isDigit(token) && token != ')' && token != '(')
+			{
+				if(operatorStack.isEmpty() || operatorStack.peek().charAt(0) == '(')
+					operatorStack.push(tokens.get(counter));
+				else
+				{
+					while(!operatorStack.isEmpty() && operatorStack.peek().charAt(0) != '(' && hasPrecedence(tokens.get(counter),operatorStack.peek()))
+					{
+						secondVal = valueStack.pop();
+						firstVal = valueStack.pop();
+						operator = operatorStack.pop().charAt(0);
+					
+						switch(operator)
+						{
+							case '+': tempVal = firstVal + secondVal;
+								break;
+							case '-': tempVal = firstVal - secondVal;
+								break;
+							case '*': tempVal = firstVal * secondVal;
+								break;
+							case '/': tempVal = firstVal / secondVal;
+								break;
+							case '^': tempVal = Math.pow(firstVal,secondVal);
+								break;
+							case '%': tempVal = firstVal % secondVal;
+								break;
+						}
+						valueStack.push(tempVal);
+					}
+					operatorStack.push(tokens.get(counter)); 
+					
+				}
+			}
+			counter++;
+		}
 		
-		return value;
+		while(!operatorStack.isEmpty())
+		{
+			secondVal = valueStack.pop();
+						firstVal = valueStack.pop();
+						operator = operatorStack.pop().charAt(0);
+					
+						switch(operator)
+						{
+							case '+': tempVal = firstVal + secondVal;
+								break;
+							case '-': tempVal = firstVal - secondVal;
+								break;
+							case '*': tempVal = firstVal * secondVal;
+								break;
+							case '/': tempVal = firstVal / secondVal;
+								break;
+							case '^': tempVal = Math.pow(firstVal,secondVal);
+								break;
+							case '%': tempVal = firstVal % secondVal;
+								break;
+						}
+						valueStack.push(tempVal);
+		}
+		
+		
+		return valueStack.pop();
 	}
 	
 	/**
