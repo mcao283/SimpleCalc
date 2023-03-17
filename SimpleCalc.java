@@ -1,7 +1,7 @@
 import java.util.List;		// used by expression evaluator
 import java.util.ArrayList;
 /**
- *	<Description goes here>
+ *	Program which accepts input from user and works as a calculator. can save vars using var = num , can call on vars by typing the var name in the equation.
  *
  *	@author	Marcus Cao
  *	@since	2/28/2023
